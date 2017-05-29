@@ -141,8 +141,10 @@ draw_instruct	endp
 
 cria_labirinto proc
 		
-		call		apaga_ecran
-
+		call	apaga_ecran
+		goto_xy	0,0
+		call 	draw_instruct
+		
 CICLO:	
 		goto_xy	0,0
 
