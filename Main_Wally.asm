@@ -149,7 +149,7 @@ CICLO:
 IMPRIME:
 		mov		ah, 02h
 		mov		dl, Car
-		int		21H	
+		int		21H
 		goto_xy	POSx,POSy
 		
 		call 	LE_TECLA
