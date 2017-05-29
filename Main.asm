@@ -20,6 +20,8 @@ dseg	segment para public 'data'
 
 	    tecla			db	?	;variavel que irá conter a escolha do utilizador!
 
+		cria_lab_instrucoes	db	'1 - █ 	2 - ▓	3 - ▒	4 - ░	5 - apaga	g - Guarda labirinto$',0
+
 		;Placeholder variables
 		cria_lab_placeholder	db	'A criar labirinto! $',0
 		abre_lab_placeholder	db	'A abrir labirinto! $',0
@@ -133,12 +135,102 @@ game_cheats endp
 ;########################################################################
 ;Procedure para criar labirinto!
 
-cria_labirinto proc
-	mov ah,09h
-	lea dx,cria_lab_placeholder
-	int 21h
+draw_instruct	proc
+		goto_xy 0,0
+		mov		ah,09h
+		mov		dx,cria_lab_instrucoes
+		int		21h
 
-	ret
+		ret
+draw_instruct	endp
+
+cria_labirinto proc
+		
+		call	apaga_ecran
+		call 	draw_instruct
+		
+		goto_xy 0,1
+
+		
+CICLO:	
+		goto_xy	0,0
+
+IMPRIME:
+		mov		ah, 02h
+		mov		dl, Car
+		int		21H
+		goto_xy	POSx,POSy
+		
+		call 	LE_TECLA
+		cmp		ah, 1
+		je		ESTEND
+		cmp 	al, 27		; ESCAPE
+		je		fim
+
+UM:		cmp 	al, 49			; Tecla 1
+		jne		DOIS
+		mov		Car, 219		;Caracter CHEIO
+		jmp		CICLO		
+	
+DOIS:	
+		cmp 	al, 50			; Tecla 2
+		jne		TRES
+		mov		Car, 178		;CINZA 178 ▓
+		jmp		CICLO			
+		
+TRES:	
+		cmp 	al, 51			; Tecla 3
+		jne		QUATRO
+		mov		Car, 177		;CINZA 177▒
+		jmp		CICLO
+		
+QUATRO:	
+		cmp 	al, 52			; Tecla 4
+		jne		CINCO
+		mov		Car, 176		;CINZA 176
+		jmp		CICLO
+
+CINCO:	
+		cmp 	al, 53			; Tecla 5
+		jne		NOVE
+		mov		Car, 32			; espaço
+		jmp		CICLO	
+
+NOVE:
+		jmp		CICLO
+
+ESTEND:	
+		cmp		POSy,0
+		je		CICLO
+
+		cmp 	al,48h
+		jne		BAIXO
+		dec		POSy			;cima
+		jmp		CICLO
+
+BAIXO:	
+		cmp		POSy,80
+		je		CICLO
+
+		cmp		al,50h
+		jne		ESQUERDA
+		inc 	POSy			;Baixo
+		jmp		CICLO
+
+ESQUERDA:
+		cmp		al,4Bh
+		jne		DIREITA
+		dec		POSx			;Esquerda
+		jmp		CICLO
+
+DIREITA:
+		cmp		al,4Dh
+		jne		CICLO 
+		inc		POSx			;Direita
+		jmp		CICLO
+
+fim:
+		ret
 cria_labirinto endp
 
 ;########################################################################
