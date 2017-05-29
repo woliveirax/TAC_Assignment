@@ -20,6 +20,8 @@ dseg	segment para public 'data'
 
 	    tecla			db	?	;variavel que irá conter a escolha do utilizador!
 
+		;Variaveis para o menu de criacao de ficheiro.
+		car		db	?
 		cria_lab_instrucoes	db	'1 - █ 	2 - ▓	3 - ▒	4 - ░	5 - apaga	g - Guarda labirinto$',0
 
 		;Placeholder variables
@@ -138,7 +140,7 @@ game_cheats endp
 draw_instruct	proc
 		goto_xy 0,0
 		mov		ah,09h
-		mov		dx,cria_lab_instrucoes
+		lea		dx,cria_lab_instrucoes
 		int		21h
 
 		ret
@@ -153,7 +155,6 @@ cria_labirinto proc
 
 		
 CICLO:	
-		goto_xy	0,0
 
 IMPRIME:
 		mov		ah, 02h
@@ -199,33 +200,43 @@ CINCO:
 NOVE:
 		jmp		CICLO
 
-ESTEND:	
-		cmp		POSy,0
-		je		CICLO
-
+ESTEND:
 		cmp 	al,48h
 		jne		BAIXO
+		
+		cmp		POSy,3
+		je		CICLO
+
 		dec		POSy			;cima
 		jmp		CICLO
 
-BAIXO:	
-		cmp		POSy,80
-		je		CICLO
-
+BAIXO:
 		cmp		al,50h
 		jne		ESQUERDA
+
+		cmp		POSy,78
+		je		CICLO
+
 		inc 	POSy			;Baixo
 		jmp		CICLO
 
 ESQUERDA:
 		cmp		al,4Bh
 		jne		DIREITA
+
+		cmp		POSx,21
+		je		CICLO
+
 		dec		POSx			;Esquerda
 		jmp		CICLO
 
 DIREITA:
 		cmp		al,4Dh
-		jne		CICLO 
+		jne		CICLO
+
+		cmp		POSx,61
+		je		CICLO
+
 		inc		POSx			;Direita
 		jmp		CICLO
 
