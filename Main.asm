@@ -32,7 +32,7 @@ dseg	segment para public 'data'
 		;Variaveis para gestão do ficheiro de labirinto
 		fname			db	'Teste.txt'
 		fhandle			dw	0
-		buffer			db	1600 dup(?)
+		buffer			db	1600 dup(32)
 
 		msgErrorCreate	db	"Ocorreu um erro na criacao do ficheiro!$"
 		msgErrorWrite	db	"Ocorreu um erro na escrita para ficheiro!$"
@@ -153,7 +153,6 @@ game_cheats endp
 ;########################################################################
 ;Procedure para criar labirinto!
 
-
 guarda_buffer 	proc
 	push ax
 	
@@ -197,10 +196,16 @@ guarda_buffer	endp
 
 
 save_to_file	proc
+	call apaga_ecran
+	call guarda_buffer
 
+	;teste
+	;mov	ah, 09h
+	;lea	dx,	buffer
+	;int 21h
 
 	mov	ah, 3ch			; abrir ficheiro para escrita
-	mov	cx, 00H			; tipo de ficheiro
+	mov	cx, 0			; tipo de ficheiro
 	lea	dx, fname		; dx contem endereco do nome do ficheiro
 	int	21h				; abre efectivamente e AX vai ficar com o Handle do ficheiro
 	jnc	escreve			; se não acontecer erro vai vamos escrever
@@ -211,8 +216,7 @@ save_to_file	proc
 	jmp	fim
 
 escreve:
-	call guarda_buffer
-	
+
 	mov	bx, ax			; para escrever BX deve conter o Handle
 	mov	ah, 40h			; indica que vamos escrever
 
