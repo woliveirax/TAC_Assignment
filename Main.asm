@@ -153,6 +153,45 @@ game_cheats endp
 ;########################################################################
 ;Procedure para criar labirinto!
 
+
+guarda_buffer 	proc
+	mov	bx, 360
+	mov	cx, 800	; Linhas x Colunas
+
+	xor si,si
+	xor contador,contador
+	
+	jmp Obtem_e_escreve
+		
+gambiarra:
+	add	bx,80
+	xor contador,contador
+
+Obtem_e_escreve:	
+	mov al, byte ptr es:[bx]
+	mov buffer[si], al
+	
+	mov	al, byte ptr es:[bx+1]
+	mov	buffer[si+1], al
+	
+	inc si
+	inc si
+
+	inc	bx
+	inc bx
+
+	inc contador
+
+	cmp	contador,40
+	je gambiarra
+
+	loop Obtem_e_escreve
+fim:
+	ret
+
+guarda_buffer	endp
+
+
 save_to_file	proc
 
 
@@ -167,39 +206,19 @@ save_to_file	proc
 	mov	ah, 09h			; Aconteceu erro na leitura
 	lea	dx, msgErrorCreate
 	int	21h
-
 	jmp	fim
 
-
-;#####################################################
-
-escreve:
-	mov 	si,1600
-
-ciclo:
-	mov		dx,es:[bx]
+	call guarda_buffer
 	
-	pushf
-	push bx
-
-
-	add		bx,2
-	add 	si,2
-
-	loop 	ciclo
-
-	mov     ah,4CH
-	int     21H
-
 	mov	bx, fhandle		; para escrever BX deve conter o Handle
 	mov	ah, 40h			; indica que vamos escrever
 
 	lea	dx, buffer		; Vamos escrever o que estiver no endereço DX
-	mov	cx, 2			; vamos escrever multiplos bytes duma vez só
-	int	21h				; faz a escrita
+	mov	cx, 1600		; vamos escrever multiplos bytes duma vez só
+	int	21h
+
+	loop 	ciclo		; faz a escrita
 	jnc	close			; se não acontecer erro fecha o ficheiro
-
-
 
 	mov	ah, 09h
 	lea	dx, msgErrorWrite
