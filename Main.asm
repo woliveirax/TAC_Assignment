@@ -3,9 +3,11 @@
 .stack 2048
 
 dseg	segment para public 'data'
+		
 		POSy		db	5	; a linha pode ir de [1 .. 25]
 		POSx		db	10	; POSx pode ir [1..80]
-		
+
+		;####################################################################################################################
 		;Variaveis relativas ao MENU ↓
 		menu 			db	80 dup ('_'),13,10,10
 						db	'                   	 	THE MAZE GAME!',13,10,10
@@ -19,12 +21,24 @@ dseg	segment para public 'data'
 						db	'$',0
 
 	    tecla			db	?	;variavel que irá conter a escolha do utilizador!
-
-		;Variaveis para o menu de criacao de ficheiro.
+		
+		;####################################################################################################################
+		;Variaveis para o menu de criacao de labirintos.
 		car		db	?
 		cria_lab_instrucoes	db	'	1 - ',219,'	2 - ',178,'	3 - ',177,'	4 - ',176,'	5 - apaga  g - Guarda  ESC - Sair',13,10
 							db	80 dup('-'),'$',0
 		contador			db	?
+
+		;Variaveis para gestão do ficheiro de labirinto
+		fname			db	?
+		fhandle			db	?
+
+
+		msgErrorCreate	db	"Ocorreu um erro na criacao do ficheiro!$"
+		msgErrorWrite	db	"Ocorreu um erro na escrita para ficheiro!$"
+		msgErrorClose	db	"Ocorreu um erro no fecho do ficheiro!$"
+
+		;####################################################################################################################
 
 		;Placeholder variables
 		cria_lab_placeholder	db	'A criar labirinto! $',0
@@ -138,6 +152,47 @@ game_cheats endp
 
 ;########################################################################
 ;Procedure para criar labirinto!
+
+save_to_file	proc
+	mov	ah, 3ch			; abrir ficheiro para escrita
+	mov	cx, 00H			; tipo de ficheiro
+	lea	dx, fname		; dx contem endereco do nome do ficheiro
+	int	21h				; abre efectivamente e AX vai ficar com o Handle do ficheiro
+	jnc	escreve			; se não acontecer erro vai vamos escrever
+
+	mov	ah, 09h			; Aconteceu erro na leitura
+	lea	dx, msgErrorCreate
+	int	21h
+
+	jmp	fim
+
+escreve:
+	mov	bx, ax			; para escrever BX deve conter o Handle
+	mov	ah, 40h			; indica que vamos escrever
+
+	lea	dx, buffer	; Vamos escrever o que estiver no endereço DX
+	mov	cx, 1300		; vamos escrever multiplos bytes duma vez só
+	int	21h					; faz a escrita
+	jnc	close				; se não acontecer erro fecha o ficheiro
+
+	mov	ah, 09h
+	lea	dx, msgErrorWrite
+	int	21h
+
+close:
+	mov	ah,3eh			; indica que vamos fechar
+	int	21h				; fecha mesmo
+	jnc	fim				; se não acontecer erro termina
+
+	mov	ah, 09h
+	lea	dx, msgErrorClose
+	int	21h
+
+fim:
+		ret
+
+save_to_file	endp
+
 
 draw_limits	proc
 		mov contador,2
