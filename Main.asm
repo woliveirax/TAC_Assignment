@@ -154,6 +154,11 @@ game_cheats endp
 ;Procedure para criar labirinto!
 
 save_to_file	proc
+
+
+
+
+
 	mov	ah, 3ch			; abrir ficheiro para escrita
 	mov	cx, 00H			; tipo de ficheiro
 	lea	dx, fname		; dx contem endereco do nome do ficheiro
@@ -170,10 +175,10 @@ escreve:
 	mov	bx, ax			; para escrever BX deve conter o Handle
 	mov	ah, 40h			; indica que vamos escrever
 
-	lea	dx, buffer	; Vamos escrever o que estiver no endereço DX
+	lea	dx, buffer		; Vamos escrever o que estiver no endereço DX
 	mov	cx, 1300		; vamos escrever multiplos bytes duma vez só
-	int	21h					; faz a escrita
-	jnc	close				; se não acontecer erro fecha o ficheiro
+	int	21h				; faz a escrita
+	jnc	close			; se não acontecer erro fecha o ficheiro
 
 	mov	ah, 09h
 	lea	dx, msgErrorWrite
