@@ -22,7 +22,9 @@ dseg	segment para public 'data'
 
 		;Variaveis para o menu de criacao de ficheiro.
 		car		db	?
-		cria_lab_instrucoes	db	'1 - █ 	2 - ▓	3 - ▒	4 - ░	5 - apaga	g - Guarda labirinto$',0
+		cria_lab_instrucoes	db	'	1 - ',219,'	2 - ',178,'	3 - ',177,'	4 - ',176,'	5 - apaga  g - Guarda  ESC - Sair',13,10
+							db	80 dup('-'),'$',0
+		contador			db	?
 
 		;Placeholder variables
 		cria_lab_placeholder	db	'A criar labirinto! $',0
@@ -62,7 +64,7 @@ LE_TECLA	endp
 ;							Go to XY Macro
 ;########################################################################
 
-goto_xy	macro		POSx,POSy
+goto_xy	macro	POSx,POSy
 		mov		ah,02h	;indica que é para mudar o cursor.
 		mov		bh,0	;Numero página.
 		mov		dl,POSx	;Pos X do ecrã, vai de 0 a 80
@@ -137,6 +139,50 @@ game_cheats endp
 ;########################################################################
 ;Procedure para criar labirinto!
 
+draw_limits	proc
+		mov contador,2
+
+loop_rows:
+		goto_xy 20,contador
+
+		mov		ah, 02h
+		mov		dl, 219
+		int		21H
+		
+		goto_xy	62,contador
+
+		mov		ah, 02h
+		mov		dl, 219
+		int		21H
+
+		inc		contador
+
+		cmp		contador,24
+		jne		loop_rows
+
+
+		mov contador,20
+loop_columns:
+		goto_xy contador,2
+
+		mov		ah, 02h
+		mov		dl, 219
+		int		21H
+
+		goto_xy contador,24
+
+		mov		ah, 02h
+		mov		dl, 219
+		int		21H
+
+		inc 	contador
+		
+		cmp		contador,63
+		jne		loop_columns
+
+		ret
+draw_limits endp
+
 draw_instruct	proc
 		goto_xy 0,0
 		mov		ah,09h
@@ -150,8 +196,10 @@ cria_labirinto proc
 		
 		call	apaga_ecran
 		call 	draw_instruct
+		call	draw_limits
 		
-		goto_xy 24,3
+		mov	POSx,22
+		mov POSy,3
 
 		
 CICLO:	
@@ -163,9 +211,10 @@ IMPRIME:
 		goto_xy	POSx,POSy
 		
 		call 	LE_TECLA
+
 		cmp		ah, 1
 		je		ESTEND
-		cmp 	al, 27		; ESCAPE
+		cmp 	al, 27			; ESCAPE
 		je		fim
 
 UM:		cmp 	al, 49			; Tecla 1
