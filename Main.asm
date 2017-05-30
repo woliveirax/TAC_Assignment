@@ -31,8 +31,8 @@ dseg	segment para public 'data'
 
 		;Variaveis para gestão do ficheiro de labirinto
 		fname			db	'Teste.txt'
-		fhandle			db	?
-		linha			db	20
+		fhandle			dw	0
+		buffer			db	1600 dup(?)
 
 		msgErrorCreate	db	"Ocorreu um erro na criacao do ficheiro!$"
 		msgErrorWrite	db	"Ocorreu um erro na escrita para ficheiro!$"
@@ -155,17 +155,19 @@ game_cheats endp
 
 
 guarda_buffer 	proc
+	push ax
+	
 	mov	bx, 360
 	mov	cx, 800	; Linhas x Colunas
 
 	xor si,si
-	xor contador,contador
+	mov	contador,0
 	
 	jmp Obtem_e_escreve
 		
 gambiarra:
 	add	bx,80
-	xor contador,contador
+	mov	contador,0
 
 Obtem_e_escreve:	
 	mov al, byte ptr es:[bx]
@@ -187,6 +189,8 @@ Obtem_e_escreve:
 
 	loop Obtem_e_escreve
 fim:
+	pop ax
+
 	ret
 
 guarda_buffer	endp
@@ -199,8 +203,6 @@ save_to_file	proc
 	mov	cx, 00H			; tipo de ficheiro
 	lea	dx, fname		; dx contem endereco do nome do ficheiro
 	int	21h				; abre efectivamente e AX vai ficar com o Handle do ficheiro
-
-	mov fhandle,ax		; move o handle do ficheiro para a variavel fhandle
 	jnc	escreve			; se não acontecer erro vai vamos escrever
 
 	mov	ah, 09h			; Aconteceu erro na leitura
@@ -208,17 +210,17 @@ save_to_file	proc
 	int	21h
 	jmp	fim
 
+escreve:
 	call guarda_buffer
 	
-	mov	bx, fhandle		; para escrever BX deve conter o Handle
+	mov	bx, ax			; para escrever BX deve conter o Handle
 	mov	ah, 40h			; indica que vamos escrever
 
 	lea	dx, buffer		; Vamos escrever o que estiver no endereço DX
 	mov	cx, 1600		; vamos escrever multiplos bytes duma vez só
-	int	21h
+	int	21h				; faz a escrita
 
-	loop 	ciclo		; faz a escrita
-	jnc	close			; se não acontecer erro fecha o ficheiro
+	jnc close			; se não acontecer erro fecha o ficheiro
 
 	mov	ah, 09h
 	lea	dx, msgErrorWrite
@@ -261,7 +263,7 @@ loop_rows:
 		jne		loop_rows
 
 		mov contador,20
-		
+
 loop_columns:
 		goto_xy contador,2
 
@@ -342,9 +344,16 @@ QUATRO:
 
 CINCO:	
 		cmp 	al, 53			; Tecla 5
-		jne		NOVE
+		jne		GUARDA
 		mov		Car, 32			; espaço
 		jmp		CICLO	
+
+
+GUARDA:	
+		cmp		al,103
+		jne		NOVE
+		call	save_to_file
+		jmp		fim
 
 NOVE:
 		jmp		CICLO
