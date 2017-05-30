@@ -260,8 +260,8 @@ loop_rows:
 		cmp		contador,24
 		jne		loop_rows
 
-
 		mov contador,20
+		
 loop_columns:
 		goto_xy contador,2
 
