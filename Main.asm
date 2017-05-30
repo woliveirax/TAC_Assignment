@@ -151,7 +151,7 @@ cria_labirinto proc
 		call	apaga_ecran
 		call 	draw_instruct
 		
-		goto_xy 0,1
+		goto_xy 24,3
 
 		
 CICLO:	
@@ -214,7 +214,7 @@ BAIXO:
 		cmp		al,50h
 		jne		ESQUERDA
 
-		cmp		POSy,78
+		cmp		POSy,23
 		je		CICLO
 
 		inc 	POSy			;Baixo
