@@ -30,9 +30,9 @@ dseg	segment para public 'data'
 		contador			db	?
 
 		;Variaveis para gestão do ficheiro de labirinto
-		fname			db	?
+		fname			db	'Teste.txt'
 		fhandle			db	?
-
+		linha			db	20
 
 		msgErrorCreate	db	"Ocorreu um erro na criacao do ficheiro!$"
 		msgErrorWrite	db	"Ocorreu um erro na escrita para ficheiro!$"
@@ -156,13 +156,12 @@ game_cheats endp
 save_to_file	proc
 
 
-
-
-
 	mov	ah, 3ch			; abrir ficheiro para escrita
 	mov	cx, 00H			; tipo de ficheiro
 	lea	dx, fname		; dx contem endereco do nome do ficheiro
 	int	21h				; abre efectivamente e AX vai ficar com o Handle do ficheiro
+
+	mov fhandle,ax		; move o handle do ficheiro para a variavel fhandle
 	jnc	escreve			; se não acontecer erro vai vamos escrever
 
 	mov	ah, 09h			; Aconteceu erro na leitura
@@ -171,14 +170,36 @@ save_to_file	proc
 
 	jmp	fim
 
+
+;#####################################################
+
 escreve:
-	mov	bx, ax			; para escrever BX deve conter o Handle
+	mov 	si,1600
+
+ciclo:
+	mov		dx,es:[bx]
+	
+	pushf
+	push bx
+
+
+	add		bx,2
+	add 	si,2
+
+	loop 	ciclo
+
+	mov     ah,4CH
+	int     21H
+
+	mov	bx, fhandle		; para escrever BX deve conter o Handle
 	mov	ah, 40h			; indica que vamos escrever
 
 	lea	dx, buffer		; Vamos escrever o que estiver no endereço DX
-	mov	cx, 1300		; vamos escrever multiplos bytes duma vez só
+	mov	cx, 2			; vamos escrever multiplos bytes duma vez só
 	int	21h				; faz a escrita
 	jnc	close			; se não acontecer erro fecha o ficheiro
+
+
 
 	mov	ah, 09h
 	lea	dx, msgErrorWrite
@@ -377,6 +398,8 @@ altera_top10 endp
 
 ;########################################################################
 ;Procedure para ler labirinto para o ecrã
+
+
 
 abre_labirinto proc
 	mov ah,09h
