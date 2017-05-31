@@ -163,7 +163,7 @@ guarda_buffer 	proc
 	mov	contador,0
 	
 	jmp Obtem_e_escreve
-		
+
 gambiarra:
 	add	bx,80
 	mov	contador,0
@@ -171,7 +171,7 @@ gambiarra:
 Obtem_e_escreve:	
 	mov al, byte ptr es:[bx]
 	mov buffer[si], al
-	
+
 	mov	al, byte ptr es:[bx+1]
 	mov	buffer[si+1], al
 	
@@ -189,20 +189,12 @@ Obtem_e_escreve:
 	loop Obtem_e_escreve
 fim:
 	pop ax
-
 	ret
-
 guarda_buffer	endp
-
 
 save_to_file	proc
 	call apaga_ecran
 	call guarda_buffer
-
-	;teste
-	;mov	ah, 09h
-	;lea	dx,	buffer
-	;int 21h
 
 	mov	ah, 3ch			; abrir ficheiro para escrita
 	mov	cx, 0			; tipo de ficheiro
@@ -216,14 +208,13 @@ save_to_file	proc
 	jmp	fim
 
 escreve:
-
 	mov	bx, ax			; para escrever BX deve conter o Handle
 	mov	ah, 40h			; indica que vamos escrever
 
 	lea	dx, buffer		; Vamos escrever o que estiver no endereço DX
 	mov	cx, 1600		; vamos escrever multiplos bytes duma vez só
 	int	21h				; faz a escrita
-
+	
 	jnc close			; se não acontecer erro fecha o ficheiro
 
 	mov	ah, 09h
@@ -240,7 +231,7 @@ close:
 	int	21h
 
 fim:
-		ret
+	ret
 
 save_to_file	endp
 
@@ -431,12 +422,49 @@ altera_top10 endp
 ;########################################################################
 ;Procedure para ler labirinto para o ecrã
 
+guarda_buffer 	proc
+	push ax
+	
+	mov	bx, 360
+	mov	cx, 800	; Linhas x Colunas
+
+	xor si,si
+	mov	contador,0
+	
+	jmp Obtem_e_escreve
+
+gambiarra:
+	add	bx,80
+	mov	contador,0
+
+Obtem_e_escreve:	
+	mov al, byte ptr es:[bx]
+	mov buffer[si], al
+
+	mov	al, byte ptr es:[bx+1]
+	mov	buffer[si+1], al
+	
+	inc si
+	inc si
+
+	inc	bx
+	inc bx
+
+	inc contador
+
+	cmp	contador,40
+	je gambiarra
+
+	loop Obtem_e_escreve
+fim:
+	pop ax
+	ret
+guarda_buffer	endp
+
 
 
 abre_labirinto proc
-	mov ah,09h
-	lea dx,abre_lab_placeholder
-	int 21h
+
 
 	ret
 abre_labirinto endp
