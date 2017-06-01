@@ -154,7 +154,6 @@ game_cheats endp
 ;Procedure para criar labirinto!
 
 guarda_buffer 	proc
-	push ax
 	
 	mov	bx, 360
 	mov	cx, 800	; Linhas x Colunas
@@ -208,6 +207,7 @@ save_to_file	proc
 	jmp	fim
 
 escreve:
+
 	mov	bx, ax			; para escrever BX deve conter o Handle
 	mov	ah, 40h			; indica que vamos escrever
 
